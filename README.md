@@ -17,8 +17,8 @@ This is a NestJS-based service that enables users to manage wallets, convert bet
 ### Steps
 1. Clone the repository:
    ```bash
-   git clone <repository-url>
-   cd <repository-folder>
+   git clone https://github.com/OlamidotunIY/fx-trading-app.git
+   cd fx-trading-app
    ```
 
 2. Install dependencies:
