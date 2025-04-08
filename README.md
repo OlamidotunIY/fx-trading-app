@@ -1,36 +1,47 @@
-
 # FX Rate and Wallet Service
 
 ## Overview
 
-This is a NestJS-based service that enables users to manage wallets, convert between currencies using real-time FX rates, fund their wallets, and trade currencies. Redis is used for caching FX rates, and Docker is configured to run Redis as a service.
+The FX Rate and Wallet Service is a NestJS-based application that allows users to:
+
+- Manage multiple wallets in different currencies.
+- Convert currencies using real-time FX rates.
+- Fund wallets and trade currencies seamlessly.
+
+The service integrates **Redis** for caching FX rates and uses **Docker** to run Redis as a service.
 
 ---
 
 ## Setup Instructions
 
 ### Prerequisites
+
+Before running the application, ensure you have the following installed:
+
 1. **Node.js** (v16 or above)
 2. **Docker** (for running Redis)
 3. **PostgreSQL** (for database management)
 
-### Steps
+### Installation Steps
+
 1. Clone the repository:
    ```bash
    git clone https://github.com/OlamidotunIY/fx-trading-app.git
    cd fx-trading-app
    ```
 
-2. Install dependencies:
+2. Install the project dependencies:
    ```bash
    npm install
    ```
 
-3. Create a `.env` file based on the `.env.example` file and update the configuration values:
-   - **Database credentials**
-   - **Email & Password**
+3. Set up environment variables:
+   - Copy the `.env.example` file to `.env`.
+   - Update the following configurations:
+     - Database credentials
+     - Email and password
 
-4. Run Redis using Docker:
+4. Start Redis using Docker:
    ```bash
    docker-compose up -d
    ```
@@ -40,62 +51,93 @@ This is a NestJS-based service that enables users to manage wallets, convert bet
    npm run start:dev
    ```
 
-6. Access the Swagger API documentation at:
-   ```
-   http://localhost:3000/api/docs
-   ```
+6. Access the Swagger API documentation:
+   - Navigate to `http://localhost:3000/api/docs`.
 
 ---
 
-## Key Assumptions
-
-1. Supported currencies are predefined and managed via the `SupportedCurrency` enum.
-2. Redis is used for caching FX rates with a TTL of 1 hour to optimize API performance.
-3. User authentication is required for wallet and transaction operations.
-4. Rates are refreshed automatically every 10 minutes using a scheduled cron job.
-
----
-
-## Endpoints
-
-### Authentication
-- **POST** `/auth/register`: Register a user and trigger OTP email.
-- **POST** `/auth/verify`: Verify OTP and activate account.
-
-### Wallet
-- **GET** `/wallet`: Get user wallet balances by currency.
-- **POST** `/wallet/fund`: Fund wallet in NGN or other currencies.
-- **POST** `/wallet/convert`: Convert between currencies using real-time FX rates.
-- **POST** `/wallet/trade`: Trade Naira with other currencies and vice versa.
+## Key Features and Assumptions
 
 ### FX Rates
-- **GET** `/fx/rates`: Retrieve current FX rates for supported currency pairs.
 
-### Transactions
-- **GET** `/transactions`: View transaction history.
+- FX rates are fetched from an external API every 10 minutes.
+- Rates are cached in Redis with a 1-hour expiration time to optimize API usage.
+- Only supported currencies (e.g., NGN, USD, EUR) are available for transactions.
 
----
+### Wallet Design
 
-## API Documentation
+- Each user can create multiple wallets, one for each currency.
+- Wallet balances are stored with a precision of up to 2 decimal places.
+- Transactions are atomic, ensuring data consistency.
 
-- Swagger is integrated into the project for API documentation.
-- Visit `http://localhost:3000/api/docs` after starting the application to explore the API documentation.
+### Transaction Management
 
----
+- Transactions are verified using unique IDs to prevent duplicates.
+- Idempotency is maintained for retries and handling network failures.
 
-## Summary of Architectural Decisions
+### Scalability Considerations
 
-1. **Modular Design**: The project is structured into distinct modules for scalability.
-2. **Redis Integration**: Redis is utilized for caching FX rates to minimize external API calls.
-3. **Scheduled Tasks**: Cron jobs are employed to refresh FX rates periodically.
-4. **Entity-Relationship Management**: TypeORM is used to manage the database schema and relations.
+- **Caching**: Redis reduces external API calls for FX rates.
+- **Database Optimization**: Indexing and partitioning improve query performance.
+- **Load Balancing**: Kubernetes and load balancers ensure high availability.
+- **Microservices**: Separate modules for transactions, wallets, and FX rates.
+- **Monitoring**: Prometheus and Grafana provide real-time monitoring and alerts.
 
 ---
 
 ## Testing
 
-- Unit tests and integration tests are included for critical logic.
-- To run the tests:
+### Recommended Test Areas
+
+1. **Wallet Balance**: Validate accurate addition and subtraction of funds.
+2. **Currency Conversion**: Test the logic for rate calculations.
+3. **Transaction Management**: Verify prevention of duplicates and handling retries.
+
+### Running Tests
+
+- To execute the test suite:
   ```bash
   npm run test
   ```
+
+---
+
+## Endpoints Overview
+
+### Authentication
+
+- **POST** `/auth/register` - Register a user and send an OTP email.
+- **POST** `/auth/verify` - Verify the OTP and activate the account.
+
+### Wallet Management
+
+- **GET** `/wallet` - Retrieve wallet balances by currency.
+- **POST** `/wallet/fund` - Fund wallets in NGN or other supported currencies.
+- **POST** `/wallet/convert` - Convert funds between currencies.
+- **POST** `/wallet/trade` - Trade Naira for other currencies and vice versa.
+
+### FX Rates
+
+- **GET** `/fx/rates` - Fetch the latest FX rates for supported currency pairs.
+
+### Transactions
+
+- **GET** `/transactions` - View the user's transaction history.
+
+---
+
+## Architectural Highlights
+
+1. **Modular Design**: Organized modules for scalability and maintainability.
+2. **Redis Integration**: Improves efficiency by caching FX rates.
+3. **Cron Jobs**: Periodically refresh FX rates.
+4. **TypeORM**: Manages database schemas and relationships.
+
+---
+
+## API Documentation
+
+Swagger is integrated for comprehensive API documentation.
+
+- Visit `http://localhost:3000/api/docs` to explore the endpoints and their details.
+
